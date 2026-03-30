@@ -1,0 +1,6 @@
+2
+1 A
+2 B
+3
+ADD_INCIDENT 1 high "fire in the building"
+ADD_INCIDENT 2 medium "flood in the building"
