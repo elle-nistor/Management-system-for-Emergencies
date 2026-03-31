@@ -86,9 +86,10 @@ void Free_Interventions (LIntervention *s);
 void add_incindent(FILE *fin, LIncident s_incident, PQueue high, 
                     PQueue medium, PQueue low);
 void command_manager(char command[], FILE *fin, FILE *fout, LIncident s_incident,
+                    LUnit s_unit, LIntervention s_intervention,
                     PQueue high, PQueue medium, PQueue low, UQueue units);
 void scan_input_file(FILE *fin, FILE *fout, int *total_units,
-                    int *total_commands, LUnit s_unit, LIncident s_incident, 
+                    int *total_commands, LUnit s_unit, LIncident s_incident, LIntervention s_intervention,
                     PQueue high, PQueue medium, PQueue low, UQueue units);
 
 PQueue Init_Queue();
@@ -100,3 +101,9 @@ UQueue Init_Units_Queue();
 void add_unit_to_queue(LUnit u, UQueue units);
 void Free_Units_Queue(UQueue *q_ptr);
 int check_units_availability(UQueue q);
+void show_incident(LIncident s, int id, FILE *fout);
+void show_unit(LUnit s, int id, FILE *fout);
+void empty_buffer(FILE *fin, FILE *fout);
+void dispatch(LIncident s_incident, LUnit s_unit, LIntervention s_intervention,
+                PQueue high, PQueue medium, PQueue low, UQueue units);
+void solved_incident(LIntervention s_intervention, UQueue units, int id, FILE *fout);               

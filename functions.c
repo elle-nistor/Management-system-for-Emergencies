@@ -369,27 +369,6 @@ void add_unit_to_queue(LUnit u, UQueue q){
 
 }
 
-// void Free_Priority_Queue(PQueue *q_ptr) {
-//     if (q_ptr == NULL || *q_ptr == NULL) {
-//         return;
-//     }
-
-//     PQueue q = *q_ptr;
-//     PQNode current = q->front;
-//     PQNode aux;
-
-//     while (current != NULL) {
-//         aux = current;          
-//         current = current->next; 
-        
-//         free(aux); 
-//     }
-
-//     free(q);
-
-//     *q_ptr = NULL;
-// }
-
 void Free_Units_Queue(UQueue *q_ptr){
 
     if (q_ptr == NULL || *q_ptr == NULL){
@@ -490,7 +469,175 @@ int check_units_availability(UQueue q){
 
 }
 
+void show_incident(LIncident s, int id, FILE *fout){
+
+    if (s->next == s){
+        fprintf(fout, "No incident has been initiated\n");
+        return;
+    }
+
+    LIncident current = s->next;
+    int check = 0;
+
+    while(current != s){
+        if(current->id == id){
+            fprintf(fout, "Incident %d has %s priority, the following description: %s and is %s\n", 
+                    current->id, current->priority, current->description, current->status);
+            check++;
+            break;
+        }
+        current = current->next;
+    }
+    if (!check){
+        fprintf(fout, "INVALID OPERATION! ERROR 404\n");
+    }
+}
+
+void show_unit(LUnit s, int id, FILE *fout){
+
+    if (s->next == s){
+        fprintf(fout, "No unit has been initiated");
+        return;
+    }
+
+    LUnit current = s->next;
+    int check = 0;
+
+    while(current != s){
+        if(current->id == id){
+            char availability[15];
+            if (current->availability){
+                strcpy(availability, "available");
+            } else {
+                strcpy(availability, "not available");
+            }
+            fprintf(fout, "Unit %d is type %c and is %s\n", 
+                    current->id, current->type, availability);
+            check++;
+            break;
+        }
+        current = current->next;
+    }
+    if (!check){
+        fprintf(fout, "INVALID OPERATION! ERROR 404\n");
+    }
+}
+
+// T
+// void show_interventions(LIntervention s, int id, FILE *fout){
+
+// }
+
+// in case there's a string and not the wanted id, ex: SHOW_UNIT miau bla bla bla
+void empty_buffer(FILE *fin, FILE *fout){
+
+    fprintf(fout, "INVALID OPERATION! ERROR 404\n");
+    int c;
+            while ((c = fgetc(fin)) != '\n' && c != EOF) {
+            }
+}
+
+void dispatch(LIncident s_incident, LUnit s_unit, LIntervention s_intervention,
+                PQueue high, PQueue medium, PQueue low, UQueue units){
+
+    int emergency = 0;
+
+    if (s_incident->next == s_incident || s_unit->next == s_unit){
+        return;
+    }
+
+    if (units->front == NULL){
+        return;
+    }
+
+    PQNode current = NULL;
+
+    if (high->front != NULL){
+        current = high->front;
+        high->front = high->front->next;
+            if (high->front == NULL) 
+                high->rear = NULL;
+
+    } else if (medium->front != NULL){
+        current = high->front;
+        medium->front = medium->front->next;
+            if (medium->front == NULL)
+                 medium->rear = NULL;
+        
+    } else if (low->front != NULL){
+        current = low->front;
+        low->front = low->front->next;
+            if (low->front == NULL) 
+                low->rear = NULL;
+
+    } else if (current == NULL){
+        return;
+    }
+
+    
+    AUNode c_unit = units->front;
+    units->front = units->front->next;
+    if (units->front == NULL) units->rear = NULL;
+
+    if (current && c_unit){
+        LIntervention new = AlocateCell_Intervention(current->incident, c_unit->unit);
+
+        strcpy(new->incident->status, "intervened");
+        new->unit->availability = 0;
+
+        if (s_intervention->next == s_intervention){
+            s_intervention->next = new;
+            new->prev = s_intervention;
+            new->next = s_intervention;
+            s_intervention->prev = new;
+        }
+
+        else {
+            new->prev = s_intervention->prev;
+            s_intervention->prev->next = new;
+            s_intervention->prev = new;
+            new->next = s_intervention;
+        }
+
+        free(current);
+        free(c_unit);
+    }
+
+}
+
+void solved_incident(LIntervention s_intervention, UQueue units, int id, FILE *fout) {
+    
+    if (s_intervention->next == s_intervention){
+        fprintf(fout, "INVALID OPERATION! ERROR 404\n");
+        return;
+    }
+
+    LIntervention current = s_intervention->next;
+    int check = 0;
+
+    while (current != s_intervention) {
+        
+        if (current->incident->id == id) {
+            
+            strcpy(current->incident->status, "solved");
+
+            current->unit->availability = 1;
+
+            add_unit_to_queue(current->unit, units);
+
+            check++;
+            break; 
+        }
+        current = current->next;
+    }
+
+    if (!check) {
+        fprintf(fout, "INVALID OPERATION! ERROR 404\n");
+    }
+}
+
 void command_manager(char command[], FILE *fin, FILE *fout, LIncident s_incident,
+                    LUnit s_unit, LIntervention s_intervention,
                     PQueue high, PQueue medium, PQueue low, UQueue units){
     if (strcmp(command, "ADD_INCIDENT") == 0){
     add_incindent(fin, s_incident, high, medium, low);
@@ -504,28 +651,49 @@ void command_manager(char command[], FILE *fin, FILE *fout, LIncident s_incident
 
     } 
     else if (strcmp(command, "DISPATCH") == 0){
+        dispatch(s_incident, s_unit, s_intervention, high,  medium, low, units);
 
     } 
     else if (strcmp(command, "UNDO_LAST_DISPATCH") == 0){
 
     } 
     else if (strcmp(command, "SOLVED_INCIDENT") == 0){
-
+        int id;
+        if (fscanf(fin, "%d", &id) == 1){
+            solved_incident(s_intervention, units, id, fout) ;
+        } else {
+           empty_buffer(fin, fout);
+        }
     } 
     else if (strcmp(command, "SHOW_UNIT") == 0){
-
+        int id;
+        if (fscanf(fin, "%d", &id) == 1){
+            show_unit(s_unit, id, fout);
+        } else {
+           empty_buffer(fin, fout);
+        }
     } 
     else if (strcmp(command, "SHOW_INCIDENT") == 0){
-
+        int id;
+        if (fscanf(fin, "%d", &id) == 1){
+            show_incident(s_incident, id, fout);
+        } else {
+            empty_buffer(fin, fout);
+        }
     } 
     else if (strcmp(command, "SHOW_INTERVENTIONS") == 0){
-
+        // int id;
+        // if (fscanf(fin, "%d", &id) == 1){
+        //     show_intervention(s_intervention, id, fout);
+        // } else {
+        //     empty_buffer(fin, fout);
+        // }
     } 
     else printf("Invalid command");
 }
 
 void scan_input_file(FILE *fin, FILE *fout, int *total_units,
-                    int *total_commands, LUnit s_unit, LIncident s_incident,
+                    int *total_commands, LUnit s_unit, LIncident s_incident, LIntervention s_intervention,
                     PQueue high, PQueue medium, PQueue low, UQueue units){
 
     char command[25];
@@ -555,12 +723,12 @@ void scan_input_file(FILE *fin, FILE *fout, int *total_units,
         }
     }
 }
-
     fscanf(fin, "%d", total_commands);
 
     for (int i = 0; i < *(total_commands); i++){
         if (fscanf(fin, "%s", command) == 1){
-            command_manager(command, fin, fout, s_incident, high,  medium, low, units);
+            command_manager(command, fin, fout, s_incident,s_unit,
+                            s_intervention, high, medium, low, units);
         }
         else return;
     }

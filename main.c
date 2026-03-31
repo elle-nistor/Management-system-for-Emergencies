@@ -42,7 +42,7 @@ int main(){
     if (fout == NULL){
         printf("Could not create output file");
     }
-    scan_input_file(fin, fout, &total_units, &total_commands, s_unit, s_incident, 
+    scan_input_file(fin, fout, &total_units, &total_commands, s_unit, s_incident, s_intervention,
                     queue_high, queue_medium, queue_low, queue_units);
   
     Print_Units(s_unit);

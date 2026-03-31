@@ -1,9 +1,17 @@
 2
 1 A
 2 B
-5
-ADD_INCIDENT 1 high "fire in the building"
-ADD_INCIDENT 2 medium "flood in the building"
-ADD_INCIDENT 3 high "flood isdef3ruilding"
-ADD_INCIDENT 4 low "flood in the bf4r3ruilding"
+12
+ADD_INCIDENT 1 medium "fire in the building"
+ADD_INCIDENT 2 high "flood in the building"
+SHOW_INCIDENT 2
+SHOW_INCIDENT 7
+SHOW_UNIT 2
+SHOW_UNIT miau mdk
+DISPATCH
 CHECK_UNITS_AVAILABILITY
+SHOW_INCIDENT 2
+SOLVED_INCIDENT 2
+SHOW_INCIDENT 2
+CHECK_UNITS_AVAILABILITY
+
