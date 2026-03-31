@@ -1,9 +1,9 @@
 build:
-	gcc -o structs main.c functions.c
+	gcc -o tema1 main.c functions.c
 run:
-	./structs
+	./tema1
 clean:
-	rm structs
+	rm tema1
 valgrind:
-	valgrind --leak-check=yes --track-origins=yes ./structs
+	valgrind --leak-check=yes --track-origins=yes ./tema1
 
