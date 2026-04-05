@@ -9,21 +9,26 @@ int main(){
     char command[25];
     int total_units, total_commands;
 
+    System *sys = malloc(sizeof(System));
+        if (sys == NULL){
+            return 1;
+        }
+
     // initiate lists & sentinels
-    LUnit s_unit = NULL;
-    LIncident s_incident = NULL;
-    LIntervention s_intervention = NULL;
-    s_unit = Init_Unit();
-    s_incident = Init_Incident();
-    s_intervention = Init_Intervention();
+
+    sys->units = Init_Unit();
+    sys->incidents = Init_Incident();
+    sys->interventions = Init_Intervention();
 
     //initiate queues - interventions & units availability
     PQueue queue_high = Init_Queue();
     PQueue queue_medium = Init_Queue();
     PQueue queue_low = Init_Queue();
     UQueue queue_units = Init_Units_Queue();
+    IStack s = Init_Stack();
 
-    if (s_unit == NULL || s_incident == NULL || s_intervention == NULL){
+    if ( sys->units == NULL || sys->incidents == NULL || sys->interventions == NULL){
+        free(sys);
         return 1;
     }
 
@@ -42,25 +47,23 @@ int main(){
     if (fout == NULL){
         printf("Could not create output file");
     }
-    scan_input_file(fin, fout, &total_units, &total_commands, s_unit, s_incident, s_intervention,
-                    queue_high, queue_medium, queue_low, queue_units);
+    scan_input_file(fin, fout, &total_units, &total_commands, sys,
+                    queue_high, queue_medium, queue_low, queue_units, s);
   
-    Print_Units(s_unit);
-    Print_Incidents(s_incident);
-    Print_Priority_Queue(queue_high);
-    Print_Priority_Queue(queue_medium);
-    Print_Priority_Queue(queue_low);
 
     // free memory
-    Free_Units(&s_unit);
-    Free_Incidents(&s_incident);
-    Free_Interventions(&s_intervention);
+    Free_Units(&(sys->units));
+    Free_Incidents(&(sys->incidents));
+    Free_Interventions(&(sys->interventions));
+
+    free(sys);
 
     Free_Priority_Queue(&queue_high);
     Free_Priority_Queue(&queue_medium);
     Free_Priority_Queue(&queue_low);
 
     Free_Units_Queue(&queue_units);
+    Free_Interventions_Stack(&s);
 
     fclose(fin);
     fclose(fout);
