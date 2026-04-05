@@ -97,7 +97,6 @@ UQueue Init_Units_Queue();
 void add_unit_to_queue(LUnit u, UQueue units);
 void Free_Units_Queue(UQueue *q_ptr);
 int check_units_availability(UQueue q);
-void empty_buffer(FILE *fin, FILE *fout);
 void add_incindent(FILE *fin,FILE *fout, System *sys, PQueue high, PQueue medium, PQueue low);
 void show_incident(System *sys, int id, FILE *fout);
 void show_unit(System *sys, int id, FILE *fout);

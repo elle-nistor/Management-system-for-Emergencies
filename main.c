@@ -15,7 +15,6 @@ int main(){
         }
 
     // initiate lists & sentinels
-
     sys->units = Init_Unit();
     sys->incidents = Init_Incident();
     sys->interventions = Init_Intervention();
@@ -55,7 +54,7 @@ int main(){
     Free_Units(&(sys->units));
     Free_Incidents(&(sys->incidents));
     Free_Interventions(&(sys->interventions));
-
+    
     free(sys);
 
     Free_Priority_Queue(&queue_high);
